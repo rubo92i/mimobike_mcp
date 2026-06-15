@@ -4,8 +4,7 @@ After=network.target postgresql.service
 
 [Service]
 Type=simple
-# Adjust to the user/path you deploy to.
-User=mimobike
+User=root
 WorkingDirectory=/opt/services/mcp
 EnvironmentFile=/opt/services/mcp/.env
 ExecStart=/usr/bin/node src/server.mjs
