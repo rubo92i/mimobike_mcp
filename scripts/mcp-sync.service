@@ -1,0 +1,19 @@
+[Unit]
+Description=mimobike MongoDB -> PostgreSQL sync worker
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+# Adjust to the user/path you deploy to.
+User=mimobike
+WorkingDirectory=/opt/services/mcp
+EnvironmentFile=/opt/services/mcp/.env
+ExecStart=/usr/bin/node src/sync.mjs
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=mcp-sync
+
+[Install]
+WantedBy=multi-user.target
