@@ -13,3 +13,6 @@ logs/
 
 .DS_Store
 Thumbs.db
+
+# Real production config (tokens) - lives only on the server, never in git
+application.properties
