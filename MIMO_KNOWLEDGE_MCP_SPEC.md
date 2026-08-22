@@ -34,7 +34,7 @@ Inspected `D:\Projects\mimobike` (all repos, remotes, build files):
 | The previous MCP server in this repo (Node + MongoDB→PostgreSQL sync) was removed at the owner's request; the repo was emptied for reuse. Commit `6fc7112`. | This repo is rebuilt as the knowledge MCP server. There are **no pre-existing MCP tools left to preserve** (the old `save/get/search/delete` tools were deleted together with their database backends before this project started). |
 | Mimo backend is Java/Spring. Most services are Spring Boot 2.5.14 (Java 8/11); `powerBank` and `relink@master` are already Spring Boot 3.5.7 / Java 21. | New server uses **Java 21 + Spring Boot 3.5.16** — consistent with the newest in-house convention. |
 | Spring AI `1.1.8` is the newest 1.1.x MCP server starter compatible with Spring Boot 3.x (2.0.x requires Spring Boot 4). It supports the **Streamable HTTP** protocol. | Use `spring-ai-starter-mcp-server-webmvc` 1.1.8 with `protocol: STREAMABLE`. No legacy SSE. Synchronous WebMVC (no service in the workspace is reactive). |
-| Old deployment convention: Jenkins → rsync to `/opt/services/mcp` → systemd unit → nginx in front, app port `3100`, secrets in `/opt/services/mcp/.env` (never overwritten by deploys). | Keep the same convention (systemd + `.env`), app listens on `3100` so existing nginx/DNS for `mcp.mimobike.com` keeps working. A production Dockerfile is also provided. |
+| Deployment convention: every Mimo Java service runs on the CentOS 8 Stream host as jar in `/opt/services/<name>` + `<name>.sh` launcher in `/usr/local/bin` + `<name>.service` systemd unit + external `application.properties`, nginx in front. | Same convention: `mcp.sh` + `mcp.service` + `/opt/services/mcp/application.properties`, app on port `3100` so existing nginx/DNS for `mcp.mimobike.com` keeps working. No Docker. |
 | GitHub access today is PAT-based (no GitHub App / org automation exists anywhere in the infrastructure). | Initial auth to GitHub: **fine-grained read-only PAT** via `GITHUB_TOKEN` env var. A GitHub App is documented as a follow-up hardening step, not implemented now (no practical App infrastructure exists). |
 | No company-wide developer-auth solution is reusable for this server (services use their own JWT auth for *mobile end-users*, not for developer tooling). | `/mcp` uses **static bearer tokens from env** (named per developer for auditing). `/internal/reload` uses a **separate** reload token. |
 | Local checkouts: `relink` was on stale `backup` branch; `master` is the active branch (Boot 3.5.7 migration, 2026-07). | MCP config uses `relink@master`. |
@@ -256,17 +256,22 @@ States, distinguished in the JSON body:
   paths. `.env*`, source files, deployment manifests are structurally
   unreachable (not in `allowed-paths`, so never even fetched).
 
-## 9. Environment variables
+## 9. Secrets / external configuration
 
-`.env.example` (names only, committed):
+`application.properties.example` (key names only, committed) → copied to
+`/opt/services/mcp/application.properties` on the host and loaded via
+`--spring.config.additional-location` by `mcp.sh`:
 
 ```
-GITHUB_TOKEN=            # fine-grained PAT, read-only Contents on the 11 repos
-MCP_AUTH_TOKENS=         # dev tokens: alice:token1,bob:token2
-MCP_RELOAD_TOKEN=        # separate token for POST /internal/reload
-KNOWLEDGE_REFRESH_INTERVAL=  # optional, ISO-8601, default PT3M (min PT1M, max PT5M)
-PORT=                    # optional, default 3100
+mimo.knowledge.github.token=     # fine-grained PAT, read-only Contents on the 11 repos
+mimo.security.auth-tokens=       # dev tokens: alice:token1,bob:token2
+mimo.security.reload-token=      # separate token for POST /internal/reload
+mimo.knowledge.refresh-interval= # optional, ISO-8601, default PT3M (min PT1M, max PT5M)
+server.port=                     # optional, default 3100
 ```
+
+(The equivalent env vars `GITHUB_TOKEN`, `MCP_AUTH_TOKENS`, `MCP_RELOAD_TOKEN`,
+`KNOWLEDGE_REFRESH_INTERVAL`, `PORT` also work when exported.)
 
 ## 10. Per-service repository changes
 
@@ -314,7 +319,7 @@ In each of the 11 service repositories:
 | Build | Maven + wrapper (`mvnw`, Maven 3.9.x) |
 | Tests | JUnit 5, Spring Boot Test, MockMvc, MockRestServiceServer (no real GitHub) |
 | Logging | Spring Boot structured logging (ECS JSON) in prod profile; plain in dev |
-| Packaging | Boot fat jar; production Dockerfile (multi-stage); systemd unit for the current host convention |
+| Packaging | Boot fat jar; `mcp.sh` + `mcp.service` (CentOS host convention, like every other Mimo Java service) |
 
 ## 12. Test plan
 

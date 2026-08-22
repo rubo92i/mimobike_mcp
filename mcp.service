@@ -1,0 +1,14 @@
+[Unit]
+Description=Mimo knowledge MCP server
+After=network.target
+
+[Service]
+Type=forking
+Restart=always
+RestartSec=5
+SuccessExitStatus=143
+ExecStart=/usr/local/bin/mcp.sh start
+ExecStop=/usr/local/bin/mcp.sh stop
+
+[Install]
+WantedBy=multi-user.target

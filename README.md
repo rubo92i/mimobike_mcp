@@ -45,8 +45,16 @@ Every response includes repository, path, commit SHA and canonical GitHub URL.
 Repositories and path allowlists live in
 [`src/main/resources/application.yml`](src/main/resources/application.yml)
 (`mimo.knowledge.repositories`); only `docs/**` and `openapi/**` files can ever
-be fetched or served. Secrets come exclusively from the environment — see
-[`.env.example`](.env.example).
+be fetched or served. Secrets live only in
+`/opt/services/mcp/application.properties` on the host — see
+[`application.properties.example`](application.properties.example).
+
+## Run in production
+
+Same convention as every other Mimo Java service on the CentOS host:
+[`mcp.sh`](mcp.sh) launcher + [`mcp.service`](mcp.service) systemd unit +
+external properties file. Deploy with
+[`scripts/jenkins-deploy.sh`](scripts/jenkins-deploy.sh).
 
 ## Build & test
 
@@ -62,4 +70,4 @@ Tests mock GitHub entirely; no credentials or network access to GitHub needed.
 * [MIMO_KNOWLEDGE_MCP_SPEC.md](MIMO_KNOWLEDGE_MCP_SPEC.md) — design + decisions
 * [MIMO_KNOWLEDGE_MCP_PRODUCTION_READINESS.md](MIMO_KNOWLEDGE_MCP_PRODUCTION_READINESS.md) — go-live checklist
 * [docs/CLIENT_SETUP.md](docs/CLIENT_SETUP.md) — connecting Claude Code / Codex
-* [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) — systemd/Docker deploy, nginx, rollback
+* [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) — CentOS systemd deploy, nginx, rollback

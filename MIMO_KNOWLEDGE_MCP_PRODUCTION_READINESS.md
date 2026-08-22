@@ -28,7 +28,7 @@ manual.
 | Tokens / `Authorization` headers never logged | no header logging anywhere; audit log records developer *name* only; verified by test + code review |
 | Audit log: developer, tool, service, path — never content | implemented (`AUDIT` logger) |
 | GitHub token read-only, contents-only, scoped to the 11 repos | **manual action** — create the fine-grained PAT this way; the server only ever calls read endpoints (`commits`, `git/trees`, `git/blobs`) |
-| No secrets in the repo | `.env.example` has names only; `application.yml` uses `${ENV}` placeholders; verified before every commit |
+| No secrets in the repo | `application.properties.example` has key names only; `application.yml` uses `${ENV}` placeholders; verified before every commit |
 | Arbitrary-file exposure impossible | files outside `allowed-paths` are never fetched from GitHub, so they cannot exist in the cache; client paths are cache-map keys (no filesystem, no GitHub passthrough); traversal inputs (`../`, absolute, encoded) find no key and return a not-found error — covered by tests |
 | Source code / `.env` / manifests unreachable | same mechanism; allowlist is `docs/**` + `openapi/**` only |
 | Rate limiting | **not included in v1** — no established in-house solution exists to reuse (spec rule). Mitigations: token-gated endpoint, bounded response sizes, cheap cache-only reads. If needed, enable nginx `limit_req` (example in `deploy/nginx-mcp.conf`) |
@@ -36,35 +36,33 @@ manual.
 
 ## 3. Configuration & secrets
 
-Required environment variables (see `.env.example`):
+Required settings in `/opt/services/mcp/application.properties`
+(template: `application.properties.example`; equivalent env vars
+`GITHUB_TOKEN`/`MCP_AUTH_TOKENS`/`MCP_RELOAD_TOKEN` also work if exported):
 
-| Variable | Purpose | Rotation |
+| Property | Purpose | Rotation |
 |---|---|---|
-| `GITHUB_TOKEN` | fine-grained PAT, read-only Contents on the 11 configured repos | rotate in GitHub → update `/opt/services/mcp/.env` → `systemctl restart mcp-knowledge` (cache survives restart via reload) |
-| `MCP_AUTH_TOKENS` | `alice:tokenA,bob:tokenB` — one entry per developer | add/remove entries + restart; removing an entry revokes that developer |
-| `MCP_RELOAD_TOKEN` | GitHub Actions → `/internal/reload` | rotate here **and** in each repo's `MIMO_MCP_RELOAD_TOKEN` Actions secret |
-| `KNOWLEDGE_REFRESH_INTERVAL` | optional, `PT1M`–`PT5M`, default `PT3M` | — |
-| `PORT` | optional, default `3100` (matches existing nginx upstream) | — |
+| `mimo.knowledge.github.token` | fine-grained PAT, read-only Contents on the 11 configured repos | rotate in GitHub → update the properties file → `systemctl restart mcp` (cache rebuilds on start) |
+| `mimo.security.auth-tokens` | `alice:tokenA,bob:tokenB` — one entry per developer | add/remove entries + restart; removing an entry revokes that developer |
+| `mimo.security.reload-token` | GitHub Actions → `/internal/reload` | rotate here **and** in each repo's `MIMO_MCP_RELOAD_TOKEN` Actions secret |
+| `mimo.knowledge.refresh-interval` | optional, `PT1M`–`PT5M`, default `PT3M` | — |
+| `server.port` | optional, default `3100` (matches existing nginx upstream) | — |
 
 Token generation: `openssl rand -hex 32` per developer / per purpose. Never
 reuse the reload token as a developer token.
 
 ## 4. Deployment
 
-Two supported paths; both documented in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md):
+Same convention as every other Mimo Java service on the CentOS 8 Stream host
+(documented in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)): Jenkins (or manual)
+runs `scripts/jenkins-deploy.sh`, which builds with `./mvnw -DskipTests
+package`, copies the jar to `/opt/services/mcp/mcp.jar` (previous jar kept as
+`mcp.jar.prev`), installs the `mcp.sh` launcher to `/usr/local/bin` and the
+`mcp.service` systemd unit, restarts, then polls `/health/ready`. Secrets stay
+in `/opt/services/mcp/application.properties` (never overwritten by deploys).
 
-1. **Current host convention (systemd)** — Jenkins (or manual) runs
-   `scripts/jenkins-deploy.sh`: builds with `./mvnw -DskipTests package`,
-   copies the jar to `/opt/services/mcp/app.jar` (previous jar kept as
-   `app.jar.prev`), installs `scripts/mcp-knowledge.service`, restarts, then
-   polls `/health/ready`. Secrets stay in `/opt/services/mcp/.env` (never
-   overwritten by deploys — same rule as the previous MCP deployment).
-2. **Docker** — multi-stage `Dockerfile` (Maven+JDK21 build → JRE21 runtime,
-   non-root user, `HEALTHCHECK` on `/health/ready`).
-
-Rollback: `mv app.jar.prev app.jar && systemctl restart mcp-knowledge`
-(or redeploy the previous image tag). The service is stateless — rollback has
-no data migration concerns.
+Rollback: `mv mcp.jar.prev mcp.jar && systemctl restart mcp`. The service is
+stateless — rollback has no data migration concerns.
 
 Nginx: `deploy/nginx-mcp.conf` — TLS, `proxy_pass http://127.0.0.1:3100`,
 buffering off for streaming responses, optional `limit_req` block.
@@ -115,10 +113,10 @@ https://mcp.mimobike.com/mcp`) and ask:
 
 ## 8. Remaining manual actions (cannot be automated from this workspace)
 
-1. Create the fine-grained read-only `GITHUB_TOKEN` (Contents: read on the 11
-   repos) and place it in `/opt/services/mcp/.env`.
-2. Generate `MCP_AUTH_TOKENS` entries for each mobile developer and
-   `MCP_RELOAD_TOKEN`; distribute developer tokens out of band.
+1. Create the fine-grained read-only GitHub token (Contents: read on the 11
+   repos) and place it in `/opt/services/mcp/application.properties`.
+2. Generate developer token entries and the reload token in the same file;
+   distribute developer tokens out of band.
 3. Add the `MIMO_MCP_RELOAD_TOKEN` Actions secret in each of the 11 service
    repositories (same value as `MCP_RELOAD_TOKEN`).
 4. Point `mcp.mimobike.com` nginx at port 3100 with `deploy/nginx-mcp.conf`
