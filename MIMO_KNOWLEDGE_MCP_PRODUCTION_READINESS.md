@@ -28,7 +28,7 @@ manual.
 | Tokens / `Authorization` headers never logged | no header logging anywhere; audit log records developer *name* only; verified by test + code review |
 | Audit log: developer, tool, service, path — never content | implemented (`AUDIT` logger) |
 | GitHub token read-only, contents-only, scoped to the 11 repos | **manual action** — create the fine-grained PAT this way; the server only ever calls read endpoints (`commits`, `git/trees`, `git/blobs`) |
-| No secrets in the repo | `application.properties.example` has key names only; `application.yml` uses `${ENV}` placeholders; verified before every commit |
+| No secrets in the repo | `application.properties.example` has key names only; `application.yml` uses `${ENV}` placeholders; real values live only in `/opt/services/mcp/application.properties` on the host |
 | Arbitrary-file exposure impossible | files outside `allowed-paths` are never fetched from GitHub, so they cannot exist in the cache; client paths are cache-map keys (no filesystem, no GitHub passthrough); traversal inputs (`../`, absolute, encoded) find no key and return a not-found error — covered by tests |
 | Source code / `.env` / manifests unreachable | same mechanism; allowlist is `docs/**` + `openapi/**` only |
 | Rate limiting | **not included in v1** — no established in-house solution exists to reuse (spec rule). Mitigations: token-gated endpoint, bounded response sizes, cheap cache-only reads. If needed, enable nginx `limit_req` (example in `deploy/nginx-mcp.conf`) |

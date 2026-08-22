@@ -1,8 +1,8 @@
 # Mimo knowledge MCP — external configuration template.
-# Copy to /opt/services/mcp/application.properties on the host and fill in
-# real values. This file is loaded via --spring.config.additional-location
-# (see mcp.sh); the repository allowlist stays in the jar's application.yml.
-# KEY NAMES ONLY here — never commit real values.
+# Copy to /opt/services/mcp/application.properties on the host, fill in real
+# values and chmod 600. The file is REQUIRED there: mcp.sh loads it via
+# --spring.config.additional-location; the repository allowlist stays in the
+# jar's application.yml. KEY NAMES ONLY here — never commit real values.
 
 server.port=3100
 
@@ -13,10 +13,11 @@ mimo.knowledge.github.token=CHANGE_ME
 # Developer bearer tokens for POST /mcp: comma-separated name:token pairs.
 # The name is the developer identity in audit logs.
 # Generate each token with: openssl rand -hex 32
-mimo.security.auth-tokens=alice:CHANGE_ME,bob:CHANGE_ME
+mimo.security.auth-tokens=ruben:CHANGE_ME,valodya:CHANGE_ME,marcus:CHANGE_ME,harut:CHANGE_ME
 
-# Separate token for POST /internal/reload (used by GitHub Actions).
-# Must differ from every developer token.
+# Separate token for POST /internal/reload (= the MIMO_MCP_RELOAD_TOKEN
+# Actions secret in the 11 service repositories). Must differ from every
+# developer token.
 mimo.security.reload-token=CHANGE_ME
 
 # Optional: cache refresh interval, ISO-8601, clamped to PT1M..PT5M.
