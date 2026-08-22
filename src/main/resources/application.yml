@@ -1,0 +1,103 @@
+server:
+  port: ${PORT:3100}
+
+spring:
+  application:
+    name: mimo-knowledge-mcp
+  ai:
+    mcp:
+      server:
+        name: mimo-knowledge
+        version: 1.0.0
+        type: SYNC
+        protocol: STREAMABLE
+        instructions: |
+          This server provides authoritative internal documentation for Mimo and EVUP.
+
+          Before modifying integrations with Mimo backend services, search this server for
+          the relevant API, DTO, authentication, payment, wallet, rental or EV charging
+          documentation.
+
+          Never guess endpoint paths, field names, enum values or error codes.
+
+          Prefer documents from the newest Git commit. If sources conflict, report the
+          conflict and identify both sources.
+        capabilities:
+          tool: true
+          resource: false
+          prompt: false
+          completion: false
+        streamable-http:
+          mcp-endpoint: /mcp
+
+mimo:
+  security:
+    auth-tokens: ${MCP_AUTH_TOKENS:}
+    reload-token: ${MCP_RELOAD_TOKEN:}
+  knowledge:
+    refresh-interval: ${KNOWLEDGE_REFRESH_INTERVAL:PT3M}
+    max-document-chars: 8000
+    max-excerpt-chars: 500
+    github:
+      api-base-url: ${GITHUB_API_BASE_URL:https://api.github.com}
+      token: ${GITHUB_TOKEN:}
+    repositories:
+      - service: accounts
+        repository: rubo92i/mimobike_accounts
+        branch: master
+        allowed-paths: ["docs/**/*.md", "openapi/**/*.yaml", "openapi/**/*.yml"]
+      - service: admin
+        repository: rubo92i/mimobike_admin
+        branch: master
+        allowed-paths: ["docs/**/*.md", "openapi/**/*.yaml", "openapi/**/*.yml"]
+      - service: ev-charger
+        repository: rubo92i/mimobike_ev_charger
+        branch: master
+        allowed-paths: ["docs/**/*.md", "openapi/**/*.yaml", "openapi/**/*.yml"]
+      - service: ipay
+        repository: rubo92i/mimobike_ipay
+        branch: master
+        allowed-paths: ["docs/**/*.md", "openapi/**/*.yaml", "openapi/**/*.yml"]
+      - service: locale
+        repository: rubo92i/mimobike_locale
+        branch: master
+        allowed-paths: ["docs/**/*.md", "openapi/**/*.yaml", "openapi/**/*.yml"]
+      - service: qr
+        repository: rubo92i/mimobike_qr_server
+        branch: master
+        allowed-paths: ["docs/**/*.md", "openapi/**/*.yaml", "openapi/**/*.yml"]
+      - service: scooter
+        repository: rubo92i/mimobike_scooter
+        branch: master
+        allowed-paths: ["docs/**/*.md", "openapi/**/*.yaml", "openapi/**/*.yml"]
+      - service: sharing
+        repository: rubo92i/mimobike_sharing
+        branch: master
+        allowed-paths: ["docs/**/*.md", "openapi/**/*.yaml", "openapi/**/*.yml"]
+      - service: ocpp
+        repository: rubo92i/mimobike_ocpp_server
+        branch: master
+        allowed-paths: ["docs/**/*.md", "openapi/**/*.yaml", "openapi/**/*.yml"]
+      - service: powerbank
+        repository: rubo92i/mimobike_charger
+        branch: master
+        allowed-paths: ["docs/**/*.md", "openapi/**/*.yaml", "openapi/**/*.yml"]
+      - service: relink
+        repository: rubo92i/mimobike_relink
+        branch: master
+        allowed-paths: ["docs/**/*.md", "openapi/**/*.yaml", "openapi/**/*.yml"]
+
+logging:
+  level:
+    AUDIT: INFO
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+logging:
+  structured:
+    format:
+      console: ecs
