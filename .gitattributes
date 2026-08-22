@@ -1,8 +1,0 @@
-# Normalize line endings. Shell scripts and unit files must stay LF so they
-# run correctly on the Linux deploy host regardless of the dev OS.
-* text=auto eol=lf
-*.sh        text eol=lf
-*.service   text eol=lf
-*.mjs       text eol=lf
-*.json      text eol=lf
-*.sql       text eol=lf
