@@ -69,8 +69,9 @@ buffering off for streaming responses, optional `limit_req` block.
 
 ## 5. Observability
 
-* Structured JSON logs (Spring Boot ECS format) under the `prod` profile;
-  human-readable logs in dev. journald picks them up via the systemd unit.
+* File logging like the other Mimo services: prod profile writes
+  `/opt/log/mcp.log` with rotation (100MB/file, 365 days, 100GB cap, rolled
+  files in `/opt/log/mcp/`); plain console logs in dev.
 * `AUDIT` logger: one line per MCP tool call — developer, tool, service, path.
 * `/health` (public) reports only the aggregate cache state + counts; a
   curl-based external monitor (existing `monitoring` host) can alert on

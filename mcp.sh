@@ -10,7 +10,7 @@ PID_PATH_NAME=/tmp/mcp-pid
 # lives in the application.yml inside the jar; the external file holds the
 # secrets/overrides (tokens, port, logging) and is REQUIRED on the host.
 start_service() {
-  nohup "$JAVA" $JAVA_OPTS -jar "$JAR" --spring.config.additional-location="$CONFIG" >>/dev/null 2>&1 &
+  nohup "$JAVA" $JAVA_OPTS -jar "$JAR" --spring.profiles.active=prod --spring.config.additional-location="$CONFIG" >>/dev/null 2>&1 &
   echo $! > $PID_PATH_NAME
   echo "$SERVICE_NAME started ..."
 }

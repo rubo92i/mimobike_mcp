@@ -76,15 +76,14 @@ Detailed per-repository state (SHAs, last errors):
 
 ## 5. Logs
 
-`mcp.sh` discards stdout (like the other services), so logs go to the file
-configured in `application.properties`:
+Same as the other services: `mcp.sh` discards stdout and the app (prod
+profile, activated by `mcp.sh`) writes to a rotated file — 100MB per file,
+365 days history, 100GB cap, rolled files in `/opt/log/mcp/`:
 
 ```bash
 tail -f /opt/log/mcp.log
 ```
 
-Optional structured JSON logs: uncomment
-`logging.structured.format.file=ecs` in the properties file.
 Audit trail: logger `AUDIT` — one line per MCP tool call with developer,
 tool, service and path (never content, never tokens).
 

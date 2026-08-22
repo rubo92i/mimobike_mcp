@@ -97,7 +97,14 @@ spring:
     activate:
       on-profile: prod
 
+# File logging like the other Mimo services (mcp.sh discards stdout).
+# Same rotation values as charger/sharing, on the Boot 3 property names.
 logging:
-  structured:
-    format:
-      console: ecs
+  file:
+    name: /opt/log/mcp.log
+  logback:
+    rollingpolicy:
+      max-history: 365
+      max-file-size: 100MB
+      total-size-cap: 100GB
+      file-name-pattern: /opt/log/mcp/mcp-%d{yyyy-MM-dd}-%i.log

@@ -23,7 +23,11 @@ mimo.security.reload-token=CHANGE_ME
 # Optional: cache refresh interval, ISO-8601, clamped to PT1M..PT5M.
 #mimo.knowledge.refresh-interval=PT3M
 
-# Logging: mcp.sh discards stdout, so log to a file like the other services.
-logging.file.name=/opt/log/mcp.log
-# Optional structured JSON logs in the file:
-#logging.structured.format.file=ecs
+# Logging: the prod profile (activated by mcp.sh) already logs to
+# /opt/log/mcp.log with rotation (100MB per file, 365 days history,
+# 100GB cap, rolled files in /opt/log/mcp/). Override here only if needed:
+#logging.file.name=/opt/log/mcp.log
+#logging.logback.rollingpolicy.max-file-size=100MB
+#logging.logback.rollingpolicy.max-history=365
+#logging.logback.rollingpolicy.total-size-cap=100GB
+#logging.logback.rollingpolicy.file-name-pattern=/opt/log/mcp/mcp-%d{yyyy-MM-dd}-%i.log

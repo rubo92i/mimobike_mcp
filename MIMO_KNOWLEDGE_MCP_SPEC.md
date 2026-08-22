@@ -318,7 +318,7 @@ In each of the 11 service repositories:
 | Markdown parsing | Own heading-splitter (small, deterministic, no extra deps) |
 | Build | Maven + wrapper (`mvnw`, Maven 3.9.x) |
 | Tests | JUnit 5, Spring Boot Test, MockMvc, MockRestServiceServer (no real GitHub) |
-| Logging | Spring Boot structured logging (ECS JSON) in prod profile; plain in dev |
+| Logging | Rotated file `/opt/log/mcp.log` in prod profile (same values as the other services: 100MB/file, 365 days, 100GB cap); console in dev |
 | Packaging | Boot fat jar; `mcp.sh` + `mcp.service` (CentOS host convention, like every other Mimo Java service) |
 
 ## 12. Test plan
