@@ -27,7 +27,7 @@ manual.
 | Constant-time comparison (`MessageDigest.isEqual`) | implemented |
 | Tokens / `Authorization` headers never logged | no header logging anywhere; audit log records developer *name* only; verified by test + code review |
 | Audit log: developer, tool, service, path — never content | implemented (`AUDIT` logger) |
-| GitHub token read-only, contents-only, scoped to the 11 repos | **manual action** — create the fine-grained PAT this way; the server only ever calls read endpoints (`commits`, `git/trees`, `git/blobs`) |
+| GitHub token read-only, contents-only, scoped to the 12 repos | **manual action** — create the fine-grained PAT this way; the server only ever calls read endpoints (`commits`, `git/trees`, `git/blobs`) |
 | No secrets in the repo | `application.properties.example` has key names only; `application.yml` uses `${ENV}` placeholders; real values live only in `/opt/services/mcp/application.properties` on the host |
 | Arbitrary-file exposure impossible | files outside `allowed-paths` are never fetched from GitHub, so they cannot exist in the cache; client paths are cache-map keys (no filesystem, no GitHub passthrough); traversal inputs (`../`, absolute, encoded) find no key and return a not-found error — covered by tests |
 | Source code / `.env` / manifests unreachable | same mechanism; allowlist is `docs/**` + `openapi/**` only |
@@ -42,7 +42,7 @@ Required settings in `/opt/services/mcp/application.properties`
 
 | Property | Purpose | Rotation |
 |---|---|---|
-| `mimo.knowledge.github.token` | fine-grained PAT, read-only Contents on the 11 configured repos | rotate in GitHub → update the properties file → `systemctl restart mcp` (cache rebuilds on start) |
+| `mimo.knowledge.github.token` | fine-grained PAT, read-only Contents on the 12 configured repos | rotate in GitHub → update the properties file → `systemctl restart mcp` (cache rebuilds on start) |
 | `mimo.security.auth-tokens` | `alice:tokenA,bob:tokenB` — one entry per developer | add/remove entries + restart; removing an entry revokes that developer |
 | `mimo.security.reload-token` | GitHub Actions → `/internal/reload` | rotate here **and** in each repo's `MIMO_MCP_RELOAD_TOKEN` Actions secret |
 | `mimo.knowledge.refresh-interval` | optional, `PT1M`–`PT5M`, default `PT3M` | — |
@@ -118,7 +118,7 @@ https://mcp.mimobike.com/mcp`) and ask:
    repos) and place it in `/opt/services/mcp/application.properties`.
 2. Generate developer token entries and the reload token in the same file;
    distribute developer tokens out of band.
-3. Add the `MIMO_MCP_RELOAD_TOKEN` Actions secret in each of the 11 service
+3. Add the `MIMO_MCP_RELOAD_TOKEN` Actions secret in each of the 12 service
    repositories (same value as `MCP_RELOAD_TOKEN`).
 4. Point `mcp.mimobike.com` nginx at port 3100 with `deploy/nginx-mcp.conf`
    (or confirm the existing vhost).

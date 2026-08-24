@@ -50,6 +50,10 @@ mimo:
         repository: rubo92i/mimobike_admin
         branch: master
         allowed-paths: ["docs/**/*.md", "openapi/**/*.yaml", "openapi/**/*.yml"]
+      - service: ai-gateway
+        repository: rubo92i/mimobike_ai_gateway
+        branch: master
+        allowed-paths: ["docs/**/*.md", "openapi/**/*.yaml", "openapi/**/*.yml"]
       - service: ev-charger
         repository: rubo92i/mimobike_ev_charger
         branch: master

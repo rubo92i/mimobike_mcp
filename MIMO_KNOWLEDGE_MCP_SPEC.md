@@ -47,6 +47,7 @@ Only these Java backend services (local directory → GitHub repository → bran
 |---|---|---|---|
 | `accounts` | `mimobike_accounts` | `rubo92i/mimobike_accounts` | `master` |
 | `admin` | `mimobike_admin` | `rubo92i/mimobike_admin` | `master` |
+| `ai-gateway` | `mimobike-ai-gateway` | `rubo92i/mimobike_ai_gateway` | `master` |
 | `ev-charger` | `mimobike_ev_charger` | `rubo92i/mimobike_ev_charger` | `master` |
 | `ipay` | `mimobike_ipay` | `rubo92i/mimobike_ipay` | `master` |
 | `locale` | `mimobike_locale` | `rubo92i/mimobike_locale` | `master` |
@@ -248,7 +249,7 @@ States, distinguished in the JSON body:
 * Audit log (SLF4J logger `AUDIT`, structured): developer identity, MCP tool
   name, service, document path, result size class — never document content.
 * GitHub token: fine-grained PAT, **read-only Contents** permission, scoped to
-  exactly the 11 repositories in §3.
+  exactly the 12 repositories in §3.
 * Rate limiting: no established in-house solution exists → not added in v1
   (nginx in front can add `limit_req` if needed; documented in the production
   readiness doc).
@@ -263,7 +264,7 @@ States, distinguished in the JSON body:
 `--spring.config.additional-location` by `mcp.sh`:
 
 ```
-mimo.knowledge.github.token=     # fine-grained PAT, read-only Contents on the 11 repos
+mimo.knowledge.github.token=     # fine-grained PAT, read-only Contents on the 12 repos
 mimo.security.auth-tokens=       # dev tokens: alice:token1,bob:token2
 mimo.security.reload-token=      # separate token for POST /internal/reload
 mimo.knowledge.refresh-interval= # optional, ISO-8601, default PT3M (min PT1M, max PT5M)
@@ -275,7 +276,7 @@ server.port=                     # optional, default 3100
 
 ## 10. Per-service repository changes
 
-In each of the 11 service repositories:
+In each of the 12 service repositories:
 
 1. `docs/` — only meaningful files from:
    `overview.md`, `mobile-api.md`, `authentication.md`, `error-codes.md`,

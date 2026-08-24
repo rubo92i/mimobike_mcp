@@ -24,7 +24,7 @@ Required values (see `application.properties.example`):
 
 | Property | Value |
 |---|---|
-| `mimo.knowledge.github.token` | fine-grained PAT, **read-only Contents**, scoped to the 11 configured repos |
+| `mimo.knowledge.github.token` | fine-grained PAT, **read-only Contents**, scoped to the 12 configured repos |
 | `mimo.security.auth-tokens` | `name:token` pairs, one per developer (`openssl rand -hex 32` each) |
 | `mimo.security.reload-token` | separate token for GitHub Actions (`openssl rand -hex 32`) |
 
