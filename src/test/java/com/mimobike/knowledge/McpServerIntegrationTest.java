@@ -180,7 +180,7 @@ class McpServerIntegrationTest {
         ResponseEntity<Map> status = rest.exchange("/internal/status", HttpMethod.GET,
                 new HttpEntity<>(headers), Map.class);
         assertThat(status.getStatusCode().value()).isEqualTo(200);
-        assertThat((List<?>) status.getBody().get("repositories")).hasSize(11);
+        assertThat((List<?>) status.getBody().get("repositories")).hasSize(13);
     }
 
     @Test
